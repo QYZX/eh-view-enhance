@@ -281,6 +281,10 @@ function confHealthCheck(cf: Config): Config {
     cf.imgScale = cf.readMode === "continuous" ? cf.defaultImgScaleModeC : 100;
     changed = true;
   }
+  if (cf.imgNodeActions && !(cf.imgNodeActions instanceof Array)) {
+    cf.imgNodeActions = [];
+    changed = true;
+  }
 
   const newCf = patchConfig(cf);
   if (newCf) {

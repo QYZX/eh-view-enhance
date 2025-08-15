@@ -113,9 +113,10 @@ export class PageFetcher {
       if (ADAPTER.conf.imgNodeActions.length > 0) {
         const AsyncFunction = async function() { }.constructor;
         this.nodeActionDesc = ADAPTER.conf.imgNodeActions.filter(a => {
+          // if workon is empty, means work on all site.
           if (!a.workon) return true;
           const regexp = new RegExp(a.workon);
-          return regexp.exec(window.location.href);
+          return regexp.test(window.location.href);
         }).map(ina => {
           return {
             icon: ina.icon,
