@@ -101,6 +101,7 @@ function setup(): DestoryFunc {
 
   return () => {
     console.log("destory eh-view-enhance");
+    ADAPTER.reset();
     entry(false);
     PF.abort();
     IL.abort();
@@ -133,18 +134,11 @@ function start() {
   }, 20);
 }
 
-// https://stackoverflow.com/questions/6390341/how-to-detect-if-url-has-changed-after-hash-in-javascript
-// the firefox in twitter.com has a bug that it doesn't work with history.pushState when open the new tab
-setTimeout(() => {
-  const oldPushState = history.pushState;
-  history.pushState = function pushState(...args: any) {
-    start();
-    return oldPushState.apply(this, args);
-  };
-  const oldReplaceState = history.replaceState;
-  history.replaceState = function replaceState(...args: any) {
-    return oldReplaceState.apply(this, args);
+let lastUrl = window.location.href;
+new MutationObserver(() => {
+  if (window.location.href !== lastUrl) {
+    lastUrl = location.href;
+    sleep(300).then(start);
   }
-  window.addEventListener("popstate", start);
-  start();
-}, 300);
+}).observe(document, { subtree: true, childList: true });
+sleep(300).then(start);

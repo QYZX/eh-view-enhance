@@ -25,6 +25,10 @@ export class Adapter {
 
   addSetup(setup: MatcherSetup) {
     this.matchers.push(setup);
+    this.handleMatcher(setup);
+  }
+
+  handleMatcher(setup: MatcherSetup) {
     const siteConf = getSiteConfig(setup.name);
     let workURLs = siteConf.workURLs?.map(regex => new RegExp(regex)) ?? [];
     if (workURLs.length === 0) {
@@ -34,6 +38,16 @@ export class Adapter {
       this.conf = { ...this.conf, ...siteConf };
       this.matcher = setup;
       this.resolve?.(setup);
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  reset() {
+    this.ready = new Promise<MatcherSetup>((resolve, _reject) => this.resolve = resolve);
+    for (const setup of this.matchers) {
+      if (this.handleMatcher(setup)) break;
     }
   }
 }
