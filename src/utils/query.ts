@@ -1,12 +1,14 @@
-import { GM_xmlhttpRequest, GmResponseType, GmResponseTypeMap, GmXmlhttpRequestOption, } from "$";
+import { GM, GmResponseType, GmResponseTypeMap, GmXmlhttpRequestOption, } from "$";
 
 type Option<T extends GmResponseType> = GmXmlhttpRequestOption<T, GmResponseTypeMap[GmResponseType]>;
 
 type EventListener<T extends GmResponseType> = Pick<Option<T>, "onload" | "onprogress" | "onerror" | "ontimeout" | "onloadstart">;
 
+export const GM_XHR = GM.xmlHttpRequest;
+
 export function xhrWapper<T extends GmResponseType>(url: string, respType: T, cb: EventListener<keyof GmResponseTypeMap>, headers: Record<string, string>, timeout?: number): (() => void) | undefined {
-  if (GM_xmlhttpRequest === undefined) throw new Error("your userscript manager does not support Gm_xmlhttpRequest api");
-  return GM_xmlhttpRequest<GmResponseType, any>({
+  if (GM_XHR === undefined) throw new Error("your userscript manager does not support Gm_xmlhttpRequest or GM.xmlhttpRequest api");
+  return GM_XHR<GmResponseType, any>({
     method: "GET",
     url,
     timeout: timeout || 600000,
