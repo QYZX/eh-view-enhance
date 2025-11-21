@@ -722,7 +722,8 @@ export class BigImageFrameManager {
       return ugoiraElem;
     } else {
       const img = document.createElement("img");
-      img.decoding = "async";
+      // img.decoding = "auto";
+      img.loading = "eager";
       img.classList.add("bifm-img");
       // img.draggable = !(conf.magnifier && conf.readMode !== "continuous");
       img.draggable = ADAPTER.conf.dragImageOut;
