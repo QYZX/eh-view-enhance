@@ -48,7 +48,7 @@ class MyComicMatcher extends BaseMatcher<Document> {
     while (true) {
       const doc = await window.fetch(ch.source).then(res => res.text()).then(text => (new DOMParser()).parseFromString(text, "text/html"));
       if (doc.title === "Just a moment...") {
-        yield Result.err(new Error("页面需要人机验证，请打开此地址进行验证，然后使用ALT+n重新加载此章节: " + ch.source));
+        yield Result.err(new Error("页面需要人机验证，请打开此地址进行验证，然后再次选择此章节: " + ch.source));
       } else {
         yield Result.ok(doc);
         break;
