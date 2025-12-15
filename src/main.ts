@@ -15,6 +15,7 @@ import revertMonkeyPatch from "./utils/revert-monkey-patch";
 import { sleep } from "./utils/sleep";
 import { evLog } from "./utils/ev-log";
 import { Filter } from "./filter";
+import { ContextMenu } from "./ui/context-menu";
 
 // Dynamically import the modules under ./platform/matchers, in which ADAPTER.addSetup will be executed
 const modules = import.meta.glob('./platform/matchers/*.ts', { eager: true });
@@ -41,6 +42,7 @@ function setup(): DestoryFunc {
 
   const events = initEvents(HTML, BIFM, IFQ, IL, PH);
   addEventListeners(events, HTML, BIFM, DL, PH);
+  new ContextMenu(HTML, events.appEvents);
 
   EBUS.subscribe("downloader-canvas-on-click", (index) => {
     IFQ.currIndex = index;

@@ -1,4 +1,4 @@
-import { KeyboardInBigImageModeId, KeyboardInFullViewGridId, KeyboardInMainId } from '../ui/event';
+import { AppEventIDInBigImgFrame, AppEventIDInFullViewGrid, AppEventIDInMain } from '../ui/event';
 
 
 const getI18nIndex = (lang: string) => {
@@ -1110,7 +1110,7 @@ Reporta problemas aquí: <a target='_blank' href='https://github.com/MapoMagpie/
 } satisfies Record<string, Langs>;
 type I18nKeys = keyof (typeof i18nData);
 
-const kbInFullViewGridData: Record<KeyboardInFullViewGridId | KeyboardInBigImageModeId | KeyboardInMainId, Langs> = {
+const kbInFullViewGridData: Record<AppEventIDInFullViewGrid | AppEventIDInBigImgFrame | AppEventIDInMain, Langs> = {
   'open-full-view-grid': [
     'Enter Read Mode',
     '进入阅读模式',
@@ -1284,6 +1284,6 @@ function convert<T extends string>(data: Record<T, Langs>): Record<T, I18nValue>
 
 export const i18n = {
   ...(convert<I18nKeys>(i18nData)),
-  keyboard: convert<KeyboardInFullViewGridId | KeyboardInBigImageModeId | KeyboardInMainId>(kbInFullViewGridData),
+  keyboard: convert<AppEventIDInFullViewGrid | AppEventIDInBigImgFrame | AppEventIDInMain>(kbInFullViewGridData),
 
 };

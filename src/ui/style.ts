@@ -983,6 +983,42 @@ export function styleCSS() {
   left: 0px;
   background: var(--ehvp-playing-progress-bar-color);
 }
+.ehvp-context-menu {
+  width: 20em;
+  height: auto;
+  position: fixed;
+  background: #00000091;
+  z-index: 2003;
+  border: 3px solid green;
+  padding: 10px;
+}
+.ehvp-context-menu-tooltip {
+  text-align: center;
+  color: white;
+  font-weight: bold;
+  white-space: nowrap;
+}
+.ehvp-context-menu-grid {
+  display: grid;
+  grid-template-columns: repeat(5, auto);
+  justify-content: center;
+  grid-column-gap: 14px;
+}
+.ehvp-context-menu-grid > .ehvp-context-menu-item {
+  height: 3em;
+  background-color: #fee;
+  margin: 0.3em 0;
+  width: 3em;
+  white-space: nowrap;
+  box-shadow: 4px 4px black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.ehvp-context-menu-grid > .ehvp-context-menu-item:hover {
+  background-color: #ffe;
+  color: #000;
+}
 @media (max-width: ${IS_MOBILE ? "1440px" : "720px"}) {
   .ehvp-root {
     font-size: 4cqw;

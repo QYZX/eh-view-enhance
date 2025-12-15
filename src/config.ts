@@ -1,5 +1,5 @@
 import { GM_getValue, GM_setValue } from "$";
-import { KeyboardInBigImageModeId, KeyboardInFullViewGridId, KeyboardInMainId } from "./ui/event";
+import { AppEventIDInBigImgFrame, AppEventIDInFullViewGrid, AppEventIDInMain } from "./ui/event";
 import { i18n } from "./utils/i18n";
 import { b64EncodeUnicode, uuid } from "./utils/random";
 
@@ -79,9 +79,9 @@ export type Config = {
   minifyPageHelper: "always" | "inBigMode" | "never",
   /** 键盘自定义 */
   keyboards: {
-    inBigImageMode: { [key in KeyboardInBigImageModeId]?: string[] },
-    inFullViewGrid: { [key in KeyboardInFullViewGridId]?: string[] },
-    inMain: { [key in KeyboardInMainId]?: string[] },
+    inBigImageMode: { [key in AppEventIDInBigImgFrame]?: string[] },
+    inFullViewGrid: { [key in AppEventIDInFullViewGrid]?: string[] },
+    inMain: { [key in AppEventIDInMain]?: string[] },
   },
   /** Is video muted? */
   muted?: boolean,
