@@ -783,7 +783,12 @@ pero desactivará la lupa y la capacidad de arrastrar y mover imágenes.`,
     "현재 페이지의 아트워크",
     "Obra de arte en la página actual",
   ],
-
+  contextMenuTooltip: [
+    "The native context menu can still be accessed with Shift + Right Click.",
+    "你仍能通过Shift+右键打开原始菜单",
+    "Shift + 마우스 오른쪽 버튼으로 기본 컨텍스트 메뉴에 여전히 접근할 수 있습니다.",
+    "El menú contextual nativo aún puede accederse con Shift + Clic Derecho.",
+  ],
   help: [
     `
 <h2>[How to Use? Where is the Entry?]</h2>
@@ -1117,6 +1122,12 @@ const kbInFullViewGridData: Record<AppEventIDInFullViewGrid | AppEventIDInBigImg
     '읽기 모드 시작',
     'Entrar en modo de lectura'
   ],
+  'open-in-new-tab': [
+    'Open In New Tab',
+    '在新标签页打开',
+    '새 탭에서 열기',
+    'Abrir en nueva pestaña'
+  ],
   'start-download': [
     'Start Download',
     '开始下载',
@@ -1263,9 +1274,9 @@ const kbInFullViewGridData: Record<AppEventIDInFullViewGrid | AppEventIDInBigImg
   ],
   'resize-flow-vision': [
     'Resize Thumbnail Grid Layout',
-    'Resize Thumbnail Grid Layout',
-    'Resize Thumbnail Grid Layout',
-    'Resize Thumbnail Grid Layout'
+    '重新排布缩略图网格',
+    '썸네일 격자 레이아웃 크기 조정',
+    'Redimensionar diseño de cuadrícula de miniaturas',
   ],
 };
 

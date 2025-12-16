@@ -38,11 +38,11 @@ function setup(): DestoryFunc {
   // UI Manager
   const PH: PageHelper = new PageHelper(HTML, () => PF.chapters, () => DL.downloading);
   const BIFM: BigImageFrameManager = new BigImageFrameManager(HTML, (index) => PF.chapters[index]);
-  new FullViewGridManager(HTML, BIFM);
+  const FVGM: FullViewGridManager = new FullViewGridManager(HTML, BIFM);
 
   const events = initEvents(HTML, BIFM, IFQ, IL, PH);
   addEventListeners(events, HTML, BIFM, DL, PH);
-  new ContextMenu(HTML, events.appEvents);
+  new ContextMenu(HTML, FVGM, events.appEvents);
 
   EBUS.subscribe("downloader-canvas-on-click", (index) => {
     IFQ.currIndex = index;

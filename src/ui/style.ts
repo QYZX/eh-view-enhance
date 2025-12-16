@@ -984,17 +984,17 @@ export function styleCSS() {
   background: var(--ehvp-playing-progress-bar-color);
 }
 .ehvp-context-menu {
-  width: 20em;
+  width: 18em;
   height: auto;
   position: fixed;
-  background: #00000091;
+  background-color: #00000080;
   z-index: 2003;
-  border: 3px solid green;
-  padding: 10px;
+  border: 2px solid white;
+  padding: 7px;
 }
 .ehvp-context-menu-tooltip {
   text-align: center;
-  color: white;
+  color: var(--ehvp-theme-font-color);
   font-weight: bold;
   white-space: nowrap;
 }
@@ -1002,11 +1002,12 @@ export function styleCSS() {
   display: grid;
   grid-template-columns: repeat(5, auto);
   justify-content: center;
-  grid-column-gap: 14px;
+  grid-column-gap: 12px;
 }
 .ehvp-context-menu-grid > .ehvp-context-menu-item {
   height: 3em;
-  background-color: #fee;
+  color: #000;
+  background-color: #fff6f6;
   margin: 0.3em 0;
   width: 3em;
   white-space: nowrap;
@@ -1014,10 +1015,15 @@ export function styleCSS() {
   display: flex;
   justify-content: center;
   align-items: center;
+  user-select: none;
 }
 .ehvp-context-menu-grid > .ehvp-context-menu-item:hover {
-  background-color: #ffe;
+  background-color: #f6ffb4;
   color: #000;
+}
+.ehvp-context-menu-grid > .ehvp-context-menu-item:active {
+  background-color: #99ff9f;
+  color: #fff;
 }
 @media (max-width: ${IS_MOBILE ? "1440px" : "720px"}) {
   .ehvp-root {

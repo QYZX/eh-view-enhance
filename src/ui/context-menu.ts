@@ -1,51 +1,79 @@
 import { i18n } from "../utils/i18n";
 import q from "../utils/query-element";
 import { AppEventDesc, AppEventIDInBigImgFrame, AppEventIDInFullViewGrid, AppEvents } from "./event";
+import { FullViewGridManager } from "./full-view-grid-manager";
 import { Elements } from "./html";
+
+type VisibleMode = "alway" | "onBig" | "onGrid";
+
+class MenuItem {
+  id: AppEventIDInBigImgFrame | AppEventIDInFullViewGrid;
+  desc: AppEventDesc;
+  visible: VisibleMode;
+  closeAfter: boolean;
+  constructor(id: AppEventIDInBigImgFrame | AppEventIDInFullViewGrid, desc: AppEventDesc, visible: VisibleMode, closeAfter: boolean) {
+    this.id = id;
+    this.visible = visible;
+    this.desc = desc;
+    this.closeAfter = closeAfter;
+  }
+};
 
 export class ContextMenu {
   root: HTMLElement;
   menu?: HTMLElement;
-  // events: AppEvents;
-  getEvents: () => [AppEventIDInBigImgFrame | AppEventIDInFullViewGrid, AppEventDesc][];
-  constructor(html: Elements, events: AppEvents) {
+  items: MenuItem[];
+  getTarget: (x: number, y: number) => HTMLElement | undefined;
+  isBigMode: () => boolean;
+  constructor(html: Elements, fvgm: FullViewGridManager, events: AppEvents) {
     this.root = html.root;
     // this.events = events;
     html.root.addEventListener("contextmenu", (event) => {
       event.preventDefault();
       this.open(event);
     });
-    this.getEvents = () => {
-      const list: [AppEventIDInBigImgFrame | AppEventIDInFullViewGrid, AppEventDesc][] = [];
+    this.getTarget = (x, y) => {
       if (!html.bigImageFrame.classList.contains("big-img-frame-collapse")) {
-        list.push(["exit-big-image-mode", events.inBigImageMode["exit-big-image-mode"]]);
-        list.push(["round-read-mode", events.inBigImageMode["round-read-mode"]]);
-        list.push(["toggle-reverse-pages", events.inBigImageMode["toggle-reverse-pages"]]);
-        list.push(["scale-image-increase", events.inBigImageMode["scale-image-increase"]]);
-        list.push(["scale-image-decrease", events.inBigImageMode["scale-image-decrease"]]);
-        list.push(["rotate-image", events.inBigImageMode["rotate-image"]]);
-        list.push(["step-image-prev", events.inBigImageMode["step-image-prev"]]);
-        list.push(["step-image-next", events.inBigImageMode["step-image-next"]]);
+        return undefined;
       } else {
-        list.push(["open-big-image-mode", events.inFullViewGrid["open-big-image-mode"]]);
+        return fvgm.mouseOn(x, y);
       }
-      list.push(["toggle-auto-play", events.inFullViewGrid["toggle-auto-play"]]);
-      list.push(["columns-decrease", events.inFullViewGrid["columns-decrease"]]);
-      list.push(["columns-increase", events.inFullViewGrid["columns-increase"]]);
-      list.push(["resize-flow-vision", events.inFullViewGrid["resize-flow-vision"]]);
-      list.push(["retry-fetch-next-page", events.inFullViewGrid["retry-fetch-next-page"]]);
-      list.push(["go-prev-chapter", events.inFullViewGrid["go-prev-chapter"]]);
-      list.push(["go-next-chapter", events.inFullViewGrid["go-next-chapter"]]);
-      list.push(["start-download", events.inFullViewGrid["start-download"]]);
-      list.push(["exit-full-view-grid", events.inFullViewGrid["exit-full-view-grid"]]);
-      return list;
-    }
+    };
+    this.isBigMode = () => !html.bigImageFrame.classList.contains("big-img-frame-collapse");
+    this.items = [];
+    const inBigList: [AppEventIDInBigImgFrame, VisibleMode, boolean][] = [
+      ["exit-big-image-mode", "onBig", true],
+      ["round-read-mode", "onBig", false],
+      ["toggle-reverse-pages", "onBig", false],
+      ["scale-image-increase", "onBig", false],
+      ["scale-image-decrease", "onBig", false],
+      ["rotate-image", "onBig", false],
+      ["step-image-prev", "onBig", false],
+      ["step-image-next", "onBig", false],
+    ];
+    inBigList.forEach(([id, hideOnBigMode, closeAfter]) => this.items.push(new MenuItem(id, events.inBigImageMode[id], hideOnBigMode, closeAfter)));
+    const inGridList: [AppEventIDInFullViewGrid, VisibleMode, boolean][] = [
+      ["open-big-image-mode", "onGrid", true],
+      ["open-in-new-tab", "onGrid", true],
+      ["toggle-auto-play", "alway", false],
+      ["pause-auto-load-temporarily", "onGrid", true],
+      ["resize-flow-vision", "onGrid", false],
+      ["columns-decrease", "onGrid", false],
+      ["columns-increase", "onGrid", false],
+      ["retry-fetch-next-page", "onGrid", false],
+      ["go-prev-chapter", "alway", false],
+      ["go-next-chapter", "alway", false],
+      ["start-download", "alway", true],
+      ["exit-full-view-grid", "alway", true],
+    ];
+    inGridList.forEach(([id, hideOnBigMode, closeAfter]) => this.items.push(new MenuItem(id, events.inFullViewGrid[id], hideOnBigMode, closeAfter)));
   }
 
   open(event: MouseEvent) {
-    console.log("event", event);
+    // console.log("event", event);
     this.close();
-    this.menu = this.create();
+    const target = this.getTarget(event.clientX, event.clientY);
+    this.menu = this.create(new MouseEvent("contextmenu", { relatedTarget: target, clientX: event.clientX, clientY: event.clientY }));
     this.root.appendChild(this.menu);
     const [w, h] = [this.menu.offsetWidth, this.menu.offsetHeight];
     this.menu.style.top = (event.clientY - (h / 2)) + "px";
@@ -56,27 +84,35 @@ export class ContextMenu {
     this.menu?.remove();
   }
 
-  private create(): HTMLElement {
+  private create(mev: MouseEvent): HTMLElement {
     const div = document.createElement("div");
     div.classList.add("ehvp-context-menu");
     // tooltip
     div.innerHTML = `
       <div class="ehvp-context-menu-tooltip"><span class="ehvp-context-menu-tooltip-span">Context Menu</span></div>
       <div class="ehvp-context-menu-grid"></div>
+      <div style="color: white; font-size: 12px;"><span>${i18n.contextMenuTooltip.get()}</span></div>
     `;
     const tooltip = q<HTMLSpanElement>(".ehvp-context-menu-tooltip-span", div);
-    const items = this.getEvents().map<HTMLElement>(([id, desc]) => {
+    const isBigMode = this.isBigMode();
+    const items = this.items.filter(item => {
+      switch (item.visible) {
+        case "alway": return true;
+        case "onBig": return isBigMode;
+        case "onGrid": return !isBigMode;
+      }
+    }).map<HTMLElement>(item => {
       const elem = document.createElement("div");
       elem.classList.add("ehvp-context-menu-item");
-      elem.innerHTML = `<span>${desc.icon}</span>`;
+      elem.innerHTML = `<span>${item.desc.icon}</span>`;
       elem.addEventListener("mouseover", () => {
-        const textContent = i18n.keyboard[id as AppEventIDInBigImgFrame | AppEventIDInFullViewGrid].get();
+        const textContent = i18n.keyboard[item.id].get();
         tooltip.textContent = textContent.replace(/\s*\(.*?\)/, "");
         // console.log(tooltip);
       });
-      elem.addEventListener("click", (event) => {
-        desc.cb(event);
-        // div.remove();
+      elem.addEventListener("click", () => {
+        item.desc.cb(mev);
+        if (item.closeAfter) div.remove();
       });
       return elem;
     });

@@ -48,7 +48,7 @@ export default function createKeyboardCustomPanel(keyboardEvents: AppEvents, roo
   </div>
   <div class="ehvp-custom-panel-container">
     <div class="ehvp-custom-panel-content">
-      ${Object.entries(keyboardEvents.inMain).map(([id]) => `
+      ${Object.entries(keyboardEvents.inMain).filter(entry => !entry[1].noKeyboard).map(([id]) => `
         <div class="ehvp-custom-panel-item">
          <div class="ehvp-custom-panel-item-title">
            <span>${i18n.keyboard[id as AppEventIDInMain].get()}</span>
@@ -61,7 +61,7 @@ export default function createKeyboardCustomPanel(keyboardEvents: AppEvents, roo
       `).join("")}
     </div>
     <div class="ehvp-custom-panel-content">
-      ${Object.entries(keyboardEvents.inFullViewGrid).map(([id]) => `
+      ${Object.entries(keyboardEvents.inFullViewGrid).filter(entry => !entry[1].noKeyboard).map(([id]) => `
         <div class="ehvp-custom-panel-item">
          <div class="ehvp-custom-panel-item-title">
            <span>${i18n.keyboard[id as AppEventIDInFullViewGrid].get()}</span>
@@ -74,7 +74,7 @@ export default function createKeyboardCustomPanel(keyboardEvents: AppEvents, roo
       `).join("")}
     </div>
     <div class="ehvp-custom-panel-content">
-      ${Object.entries(keyboardEvents.inBigImageMode).map(([id]) => `
+      ${Object.entries(keyboardEvents.inBigImageMode).filter(entry => !entry[1].noKeyboard).map(([id]) => `
         <div class="ehvp-custom-panel-item">
          <div class="ehvp-custom-panel-item-title">
            <span>${i18n.keyboard[id as AppEventIDInBigImgFrame].get()}</span>

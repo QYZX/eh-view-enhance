@@ -37,6 +37,7 @@ export type AppEventIDInBigImgFrame = "step-image-prev"
   | "go-prev-chapter"
   | "go-next-chapter";
 export type AppEventIDInFullViewGrid = "open-big-image-mode"
+  | "open-in-new-tab"
   | "pause-auto-load-temporarily"
   | "exit-full-view-grid"
   | "columns-increase"
@@ -59,11 +60,13 @@ export class AppEventDesc {
   icon: string;
   cb: AppEvent;
   noPreventDefault?: boolean = false;
-  constructor(defaultKeys: string[], icon: string, cb: AppEvent, noPreventDefault?: boolean) {
+  noKeyboard: boolean = false;
+  constructor(defaultKeys: string[], icon: string, cb: AppEvent, noPreventDefault?: boolean, noKeyboard?: boolean) {
     this.defaultKeys = defaultKeys;
     this.icon = icon;
     this.cb = cb;
-    this.noPreventDefault = noPreventDefault || false;
+    this.noPreventDefault = noPreventDefault ?? false;
+    this.noKeyboard = noKeyboard ?? false;
   }
 }
 
@@ -327,7 +330,7 @@ export function initEvents(HTML: Elements, BIFM: BigImageFrameManager, IFQ: IMGF
       ),
       "scroll-image-down": new AppEventDesc(
         ["pagedown", "arrowdown", "space"],
-        "DOWN",
+        "DN",
         (event) => {
           if (!event) return;
           const key = parseKey(event);
@@ -384,21 +387,42 @@ export function initEvents(HTML: Elements, BIFM: BigImageFrameManager, IFQ: IMGF
     const inFullViewGrid: Record<AppEventIDInFullViewGrid, AppEventDesc> = {
       "open-big-image-mode": new AppEventDesc(
         ["enter"],
-        "OPEN",
-        () => {
-          let start = IFQ.currIndex;
-          if (numberRecord && numberRecord.length > 0) {
-            start = Number(numberRecord.join("")) - 1;
+        icons.imageIcon,
+        (event) => {
+          let target: HTMLAnchorElement | undefined;
+          if (event instanceof MouseEvent && event.relatedTarget instanceof HTMLDivElement) {
+            target = event.relatedTarget.querySelector<HTMLAnchorElement>("a") ?? undefined;
+          } else if (numberRecord && numberRecord.length > 0) {
+            let start = Number(numberRecord.join("")) - 1;
             numberRecord = null;
             if (isNaN(start)) return;
             start = Math.max(0, Math.min(start, IFQ.length - 1));
+            target = IFQ[start].node.root?.querySelector<HTMLAnchorElement>("a") ?? undefined;
+          } else {
+            target = IFQ[IFQ.currIndex].node.root?.querySelector<HTMLAnchorElement>("a") ?? undefined;
           }
-          IFQ[start].node.root?.querySelector<HTMLAnchorElement>("a")?.dispatchEvent(new MouseEvent("click", { bubbles: false, cancelable: true }));
+          target?.dispatchEvent(new MouseEvent("click", { bubbles: false, cancelable: true }));
         }
       ),
+      "open-in-new-tab": new AppEventDesc(
+        ["alt+o"],
+        icons.openInNewTabIcon,
+        (event) => {
+          if (event instanceof MouseEvent && event.relatedTarget) {
+            const href = (event.relatedTarget as HTMLElement).querySelector("a")?.href;
+            if (href) {
+              const an = document.createElement("a");
+              an.href = href;
+              an.target = "_blank";
+              an.click();
+              an.remove();
+            }
+          }
+        }
+        , false, true),
       "pause-auto-load-temporarily": new AppEventDesc(
         ["alt+p"],
-        "PAUSE AUTO",
+        icons.pauseAutoLoadIcon,
         () => {
           IL.autoLoad = !IL.autoLoad;
           if (IL.autoLoad) {
@@ -481,7 +505,7 @@ export function initEvents(HTML: Elements, BIFM: BigImageFrameManager, IFQ: IMGF
   function bigImageFrameKeyBoardEvent(event: KeyboardEvent | MouseEvent) {
     if (HTML.bigImageFrame.classList.contains("big-img-frame-collapse")) return;
     const key = parseKey(event);
-    const found = Object.entries(appEvents.inBigImageMode).find(([id, desc]) => {
+    const found = Object.entries(appEvents.inBigImageMode).filter(entry => !entry[1].noKeyboard).find(([id, desc]) => {
       const override = ADAPTER.conf.keyboards.inBigImageMode[id as AppEventIDInBigImgFrame];
       return ((override !== undefined && override.length > 0) ? override.includes(key) : desc.defaultKeys.includes(key));
     });
@@ -494,7 +518,7 @@ export function initEvents(HTML: Elements, BIFM: BigImageFrameManager, IFQ: IMGF
   function fullViewGridKeyBoardEvent(event: KeyboardEvent | MouseEvent) {
     if (HTML.root.classList.contains("ehvp-root-collapse")) return;
     const key = parseKey(event);
-    const found = Object.entries(appEvents.inFullViewGrid).find(([id, desc]) => {
+    const found = Object.entries(appEvents.inFullViewGrid).filter(entry => !entry[1].noKeyboard).find(([id, desc]) => {
       const override = ADAPTER.conf.keyboards.inFullViewGrid[id as AppEventIDInFullViewGrid];
       return ((override !== undefined && override.length > 0) ? override.includes(key) : desc.defaultKeys.includes(key));
     });
@@ -512,7 +536,7 @@ export function initEvents(HTML: Elements, BIFM: BigImageFrameManager, IFQ: IMGF
     if (!HTML.root.classList.contains("ehvp-root-collapse")) return;
     if (!HTML.bigImageFrame.classList.contains("big-img-frame-collapse")) return;
     const key = parseKey(event);
-    const found = Object.entries(appEvents.inMain).find(([id, desc]) => {
+    const found = Object.entries(appEvents.inMain).filter(entry => !entry[1].noKeyboard).find(([id, desc]) => {
       const override = ADAPTER.conf.keyboards.inMain[id as AppEventIDInMain];
       return ((override !== undefined && override.length > 0) ? override.includes(key) : desc.defaultKeys.includes(key));
     });
